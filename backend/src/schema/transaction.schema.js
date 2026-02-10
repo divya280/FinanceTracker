@@ -5,6 +5,6 @@ const transactionSchema = z.object({
     type: z.enum(['income', 'expense'], "Type must be either 'income' or 'expense'"),
     category: z.string().min(1, "Category is required"),
     description: z.string().optional(),
-    
+    date: z.string().or(z.date()),
 });
 module.exports = { transactionSchema } ; 
