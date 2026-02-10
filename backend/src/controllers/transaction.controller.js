@@ -3,7 +3,11 @@ const { transactionSchema } = require('../schema/transaction.schema');
 
 exports.createTransaction = async (req, res) => {
     try {
-        const validated = transactionSchema.parse(req.body);
+        const userId = req.user.uid;
+        // Inject userId into body for validation if schema requires it
+        const bodyWithUser = { ...req.body, userId };
+        
+        const validated = transactionSchema.parse(bodyWithUser);
         const transaction = await transactionService.createTransaction(validated);
         res.status(201).json(transaction);
     } catch (err) {
@@ -43,6 +47,15 @@ exports.deleteTransaction = async (req, res) => {
         await transactionService.deleteTransaction(req.params.id);
         res.status(200).json({ message: "Transaction deleted" });        
     }catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getUserSummary = async (req, res) => {
+    try {
+        const summary = await transactionService.getUserSummary(req.params.userId);
+        res.status(200).json(summary);
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };

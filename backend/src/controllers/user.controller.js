@@ -1,12 +1,21 @@
 const userService=require('../services/user.service');
 const {userSchema}=require('../schema/user.schema');
-exports.createUser=async(req,res)=>{
-    try{
-        const validated=userSchema.parse(req.body);
-        const user= await userService.createUser(validated);
-        res.status(201).json(user);
-    }catch(err){
-        res.status(400).json({error:err.message});
+exports.syncUser = async (req, res) => {
+    try {
+        const { uid, email, name } = req.user; // From middleware
+        // efficient update-or-create (upsert)
+        const user = await ((await require('../models/user.model')).findOneAndUpdate(
+            { firebaseUid: uid },
+            { 
+                firebaseUid: uid, 
+                email: email, 
+                name: name || email.split('@')[0] // Fallback name
+            },
+            { new: true, upsert: true }
+        ));
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 };
 exports.getUsers = async (req, res) => {
