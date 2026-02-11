@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require("./logger"); // not { logger } since you exported default logger
+const logger = require("./logger").default; // Access .default for ES6 export default
 
 const MONGO_URI = process.env.MONGO_URI; // stick to your original env var
 
