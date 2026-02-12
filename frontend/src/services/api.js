@@ -8,6 +8,8 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+console.log(import.meta.env.VITE_API_BASE_URL);
+
 
 // Add a request interceptor
 api.interceptors.request.use(async (config) => {
