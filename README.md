@@ -1,4 +1,4 @@
-# 💰 FinanceTracker
+#  FinanceTracker
 
 FinanceTracker is a **full-stack MERN application** designed to help users track their **daily income, expenses, balances, and transactions** in a simple and organized way.
 
@@ -6,18 +6,18 @@ This project focuses on real-world full-stack development, authentication, API i
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔐 Secure user authentication using Firebase  
-- 💵 Track daily income and expenses  
-- 📊 View balance and transaction history  
-- 🗂️ Organized transaction management  
-- ⚡ Responsive and clean UI  
-- 🌐 RESTful API integration  
+-  Secure user authentication using Firebase  
+-  Track daily income and expenses  
+-  View balance and transaction history  
+-  Organized transaction management  
+-  Responsive and clean UI  
+-  RESTful API integration  
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - React.js  
@@ -33,7 +33,7 @@ This project focuses on real-world full-stack development, authentication, API i
 ### Authentication
 - Firebase Authentication  
 
-## 📁 Project Structure
+##  Project Structure
 ```
 
 FinanceTracker/
