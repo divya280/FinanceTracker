@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Start server
+// Start server (only when running locally, not in serverless)
 async function startServer() {
   try {
     await connectMongo();
@@ -86,4 +86,10 @@ async function startServer() {
   }
 }
 
-startServer();
+// Only start server if not in serverless environment
+if (require.main === module) {
+  startServer();
+}
+
+// Export app for serverless deployment
+module.exports = app;
