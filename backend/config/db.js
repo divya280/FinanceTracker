@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
+const dns = require("dns");
 const logger = require("./logger").default; // Access .default for ES6 export default
+
+// Some local/VPN networks hand out DNS servers that refuse SRV queries,
+// which breaks mongodb+srv:// lookups. Force a public resolver for this process.
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const MONGO_URI = process.env.MONGO_URI; // stick to your original env var
 

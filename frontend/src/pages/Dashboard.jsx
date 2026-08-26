@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const userId = user?.uid;
@@ -37,12 +38,33 @@ const Dashboard = () => {
 
   const handleAddTransaction = async (data) => {
     try {
-      await transactionApi.create({ ...data, userId });
+      if (editingTransaction) {
+        await transactionApi.update(editingTransaction._id, data);
+      } else {
+        await transactionApi.create({ ...data, userId });
+      }
       setIsFormOpen(false);
+      setEditingTransaction(null);
       fetchData();
     } catch (err) {
-      console.error("Failed to add transaction", err);
-      alert(err.response?.data?.error || "Failed to add transaction");
+      console.error("Failed to save transaction", err);
+      alert(err.response?.data?.error || "Failed to save transaction");
+    }
+  };
+
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this transaction?")) {
+      try {
+        await transactionApi.delete(id);
+        fetchData();
+      } catch (err) {
+        console.error("Failed to delete", err);
+      }
     }
   };
 
@@ -88,7 +110,7 @@ const Dashboard = () => {
             Logout
           </button>
           <button
-            onClick={() => setIsFormOpen(true)}
+            onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-5 h-5" />
@@ -111,10 +133,10 @@ const Dashboard = () => {
           {loading ? (
              <div className="text-center p-4">Loading...</div>
           ) : (
-            <TransactionTable 
-              transactions={transactions.slice(0, 5)} 
-              onEdit={() => {}} // Disabled for dashboard view
-              onDelete={() => {}} // Disabled for dashboard view, read-only
+            <TransactionTable
+              transactions={transactions.slice(0, 5)}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           )}
         </div>
@@ -154,10 +176,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <TransactionForm 
-        isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
-        onSubmit={handleAddTransaction} 
+      <TransactionForm
+        isOpen={isFormOpen}
+        onClose={() => { setIsFormOpen(false); setEditingTransaction(null); }}
+        onSubmit={handleAddTransaction}
+        initialData={editingTransaction}
       />
     </Layout>
   );
