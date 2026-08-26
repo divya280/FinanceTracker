@@ -11,6 +11,13 @@ pnpm-debug.log*
 .env.production
 .env.development
 
+# Secrets / service account keys
+serviceAccountKey.json
+*serviceAccountKey*.json
+*firebase-adminsdk*.json
+*.pem
+*.p12
+
 # Build outputs
 dist/
 build/
