@@ -1,7 +1,11 @@
 const express=require('express');
 const userRoutes=require('./routes/user.routes');
 const transactionRoutes=require('./routes/transaction.routes');
+const categoryRoutes=require('./routes/category.routes');
+const budgetRoutes=require('./routes/budget.routes');
 const router=express.Router();
 router.use('/users',userRoutes);
 router.use('/transactions',transactionRoutes);
+router.use('/categories',categoryRoutes);
+router.use('/budgets',budgetRoutes);
 module.exports=router;

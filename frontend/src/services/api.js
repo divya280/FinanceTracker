@@ -37,9 +37,25 @@ export const userApi = {
 export const transactionApi = {
   create: (data) => api.post("/transactions", data),
   getAll: () => api.get("/transactions"),
-  getByUser: (userId) => api.get(`/transactions/user/${userId}`),
+  getByUser: (userId, filters = {}) => api.get(`/transactions/user/${userId}`, { params: filters }),
   update: (id, data) => api.put(`/transactions/${id}`, data),
   delete: (id) => api.delete(`/transactions/${id}`),
+};
+
+// Category API
+export const categoryApi = {
+  create: (data) => api.post("/categories", data),
+  getByUser: (userId) => api.get(`/categories/user/${userId}`),
+  update: (id, data) => api.put(`/categories/${id}`, data),
+  delete: (id) => api.delete(`/categories/${id}`),
+};
+
+// Budget API
+export const budgetApi = {
+  create: (data) => api.post("/budgets", data),
+  getByUser: (userId, month, year) => api.get(`/budgets/user/${userId}`, { params: { month, year } }),
+  update: (id, data) => api.put(`/budgets/${id}`, data),
+  delete: (id) => api.delete(`/budgets/${id}`),
 };
 
 export default api;

@@ -15,9 +15,17 @@ async function updateTransaction(userId,data){
 async function deleteTransaction(userId,data){
     return await Transaction.findByIdAndDelete(userId,data);
 }
-// Get Transactions by User
-async function getTransactionsByUser(userId) {
-    return await Transaction.find({ userId }).sort({ date: -1 });
+// Get Transactions by User, optionally filtered by date range/type/category
+async function getTransactionsByUser(userId, filters = {}) {
+    const query = { userId };
+    if (filters.type) query.type = filters.type;
+    if (filters.category) query.category = filters.category;
+    if (filters.startDate || filters.endDate) {
+        query.date = {};
+        if (filters.startDate) query.date.$gte = new Date(filters.startDate);
+        if (filters.endDate) query.date.$lte = new Date(filters.endDate);
+    }
+    return await Transaction.find(query).sort({ date: -1 });
 }
 // Get User Summary (total income, expense, balance)
 async function getUserSummary(userId) {

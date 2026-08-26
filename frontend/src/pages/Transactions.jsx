@@ -2,29 +2,38 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import TransactionTable from '../components/TransactionTable';
 import TransactionForm from '../components/TransactionForm';
-import { transactionApi } from '../services/api';
+import { transactionApi, categoryApi } from '../services/api';
 import { Plus } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [filters, setFilters] = useState({ type: '', category: '', startDate: '', endDate: '' });
+  const [search, setSearch] = useState('');
   const { user } = useAuth();
   const userId = user?.uid;
 
   useEffect(() => {
     if (userId) {
       fetchTransactions();
+      categoryApi.getByUser(userId).then(res => setCategories(res.data)).catch(err => console.error("Failed to fetch categories", err));
     }
-  }, [userId]);
+  }, [userId, filters.type, filters.category, filters.startDate, filters.endDate]);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await transactionApi.getByUser(userId);
+      const res = await transactionApi.getByUser(userId, {
+        type: filters.type || undefined,
+        category: filters.category || undefined,
+        startDate: filters.startDate || undefined,
+        endDate: filters.endDate || undefined,
+      });
       setTransactions(res.data);
     } catch (err) {
       console.error("Failed to fetch transactions", err);
@@ -32,6 +41,10 @@ const Transactions = () => {
       setLoading(false);
     }
   };
+
+  const visibleTransactions = search
+    ? transactions.filter((t) => t.description?.toLowerCase().includes(search.toLowerCase()))
+    : transactions;
 
   const handleAdd = () => {
     setEditingTransaction(null);
@@ -85,14 +98,66 @@ const Transactions = () => {
         </button>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <select
+          value={filters.type}
+          onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+          className="p-2 rounded-md border border-input bg-background text-sm"
+        >
+          <option value="">All Types</option>
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+        <select
+          value={filters.category}
+          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+          className="p-2 rounded-md border border-input bg-background text-sm"
+        >
+          <option value="">All Categories</option>
+          {categories
+            .filter((c) => !filters.type || c.type === filters.type)
+            .map((c) => (
+              <option key={c._id} value={c.name}>{c.name}</option>
+            ))}
+        </select>
+        <input
+          type="date"
+          value={filters.startDate}
+          onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+          className="p-2 rounded-md border border-input bg-background text-sm"
+        />
+        <span className="text-muted-foreground text-sm">to</span>
+        <input
+          type="date"
+          value={filters.endDate}
+          onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+          className="p-2 rounded-md border border-input bg-background text-sm"
+        />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search description..."
+          className="p-2 rounded-md border border-input bg-background text-sm flex-1 min-w-[180px]"
+        />
+        {(filters.type || filters.category || filters.startDate || filters.endDate || search) && (
+          <button
+            onClick={() => { setFilters({ type: '', category: '', startDate: '', endDate: '' }); setSearch(''); }}
+            className="text-sm text-primary hover:underline"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
       <div className="bg-card border border-border rounded-xl shadow-sm">
         {loading ? (
           <div className="p-8 text-center">Loading transactions...</div>
         ) : (
-          <TransactionTable 
-            transactions={transactions} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
+          <TransactionTable
+            transactions={visibleTransactions}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
@@ -102,6 +167,7 @@ const Transactions = () => {
         onClose={() => setIsFormOpen(false)} 
         onSubmit={handleSubmit}
         initialData={editingTransaction}
+        categories={categories}
       />
     </Layout>
   );

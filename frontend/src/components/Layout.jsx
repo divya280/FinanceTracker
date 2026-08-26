@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Menu, X, Wallet } from 'lucide-react';
+import { LayoutDashboard, Receipt, Menu, X, Wallet, Tags, PiggyBank } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ icon: Icon, label, to, active }) => (
@@ -51,11 +51,23 @@ const Layout = ({ children }) => {
             to="/" 
             active={location.pathname === '/'} 
           />
-          <SidebarItem 
-            icon={Receipt} 
-            label="Transactions" 
-            to="/transactions" 
-            active={location.pathname === '/transactions'} 
+          <SidebarItem
+            icon={Receipt}
+            label="Transactions"
+            to="/transactions"
+            active={location.pathname === '/transactions'}
+          />
+          <SidebarItem
+            icon={Tags}
+            label="Categories"
+            to="/categories"
+            active={location.pathname === '/categories'}
+          />
+          <SidebarItem
+            icon={PiggyBank}
+            label="Budgets"
+            to="/budgets"
+            active={location.pathname === '/budgets'}
           />
         </nav>
       </aside>

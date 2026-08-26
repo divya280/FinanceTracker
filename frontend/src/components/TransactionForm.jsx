@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { X } from 'lucide-react';
 
-const TransactionForm = ({ isOpen, onClose, onSubmit, initialData }) => {
+const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, categories = [] }) => {
   const [formData, setFormData] = useState({
     amount: '',
     type: 'expense',
@@ -60,7 +60,7 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                   name="type"
                   value="income"
                   checked={formData.type === 'income'}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value, category: '' })}
                   className="accent-primary"
                 />
                 Income
@@ -71,7 +71,7 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                   name="type"
                   value="expense"
                   checked={formData.type === 'expense'}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value, category: '' })}
                   className="accent-primary"
                 />
                 Expense
@@ -102,25 +102,17 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData }) => {
               className="w-full p-2 rounded-md border border-input bg-background"
             >
               <option value="" disabled>Select category</option>
-              {formData.type === 'income' ? (
-                <>
-                  <option value="Salary">Salary</option>
-                  <option value="Freelance">Freelance</option>
-                  <option value="Investment">Investment</option>
-                  <option value="Other">Other</option>
-                </>
-              ) : (
-                <>
-                  <option value="Food">Food</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Utilities">Utilities</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Health">Health</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Other">Other</option>
-                </>
-              )}
+              {categories
+                .filter((c) => c.type === formData.type)
+                .map((c) => (
+                  <option key={c._id} value={c.name}>{c.name}</option>
+                ))}
             </select>
+            {categories.filter((c) => c.type === formData.type).length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                No {formData.type} categories yet — add one from the Categories page.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

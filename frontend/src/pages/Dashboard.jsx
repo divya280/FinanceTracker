@@ -3,37 +3,71 @@ import Layout from '../components/Layout';
 import MetricCard from '../components/MetricCard';
 import TransactionTable from '../components/TransactionTable';
 import TransactionForm from '../components/TransactionForm';
-import { transactionApi } from '../services/api';
+import { transactionApi, categoryApi, budgetApi } from '../services/api';
 import { Plus, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { cn } from '../lib/utils';
 
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [period, setPeriod] = useState('thisMonth');
+  const [customRange, setCustomRange] = useState({ start: '', end: '' });
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const userId = user?.uid;
 
+  const getDateRange = () => {
+    const now = new Date();
+    if (period === 'thisMonth') {
+      return {
+        startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+        endDate: new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString(),
+      };
+    }
+    if (period === 'lastMonth') {
+      return {
+        startDate: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString(),
+        endDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+      };
+    }
+    if (period === 'custom') {
+      return {
+        startDate: customRange.start || undefined,
+        endDate: customRange.end || undefined,
+      };
+    }
+    return {};
+  };
+
   useEffect(() => {
     if (!userId) return;
     fetchData();
-  }, [userId]);
+    categoryApi.getByUser(userId).then(res => setCategories(res.data)).catch(err => console.error("Failed to fetch categories", err));
+    budgetApi.getByUser(userId).then(res => setBudgets(res.data)).catch(err => console.error("Failed to fetch budgets", err));
+  }, [userId, period, customRange.start, customRange.end]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await transactionApi.getByUser(userId);
+      const res = await transactionApi.getByUser(userId, getDateRange());
       setTransactions(res.data);
     } catch (err) {
       console.error("Failed to fetch transactions", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshBudgets = () => {
+    budgetApi.getByUser(userId).then(res => setBudgets(res.data)).catch(err => console.error("Failed to fetch budgets", err));
   };
 
   const handleAddTransaction = async (data) => {
@@ -46,6 +80,7 @@ const Dashboard = () => {
       setIsFormOpen(false);
       setEditingTransaction(null);
       fetchData();
+      refreshBudgets();
     } catch (err) {
       console.error("Failed to save transaction", err);
       alert(err.response?.data?.error || "Failed to save transaction");
@@ -62,6 +97,7 @@ const Dashboard = () => {
       try {
         await transactionApi.delete(id);
         fetchData();
+        refreshBudgets();
       } catch (err) {
         console.error("Failed to delete", err);
       }
@@ -117,6 +153,37 @@ const Dashboard = () => {
             Add Transaction
           </button>
         </div>
+      </div>
+
+      {/* Period Selector */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          className="p-2 rounded-md border border-input bg-background text-sm"
+        >
+          <option value="thisMonth">This Month</option>
+          <option value="lastMonth">Last Month</option>
+          <option value="allTime">All Time</option>
+          <option value="custom">Custom Range</option>
+        </select>
+        {period === 'custom' && (
+          <>
+            <input
+              type="date"
+              value={customRange.start}
+              onChange={(e) => setCustomRange({ ...customRange, start: e.target.value })}
+              className="p-2 rounded-md border border-input bg-background text-sm"
+            />
+            <span className="text-muted-foreground text-sm">to</span>
+            <input
+              type="date"
+              value={customRange.end}
+              onChange={(e) => setCustomRange({ ...customRange, end: e.target.value })}
+              className="p-2 rounded-md border border-input bg-background text-sm"
+            />
+          </>
+        )}
       </div>
 
       {/* Metrics Grid */}
@@ -176,11 +243,43 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {budgets.length > 0 && (
+        <div className="mt-8 bg-card border border-border rounded-xl p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Budget Overview</h2>
+            <Link to="/budgets" className="text-sm text-primary hover:underline">Manage budgets</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {budgets.map((b) => {
+              const pct = Math.min(100, Math.round((b.spent / b.limit) * 100));
+              const isOver = b.spent > b.limit;
+              return (
+                <div key={b._id} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{b.category}</span>
+                    <span className={cn(isOver ? "text-red-600 font-medium" : "text-muted-foreground")}>
+                      ₹{b.spent.toFixed(2)} / ₹{b.limit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={cn("h-full rounded-full transition-all", isOver ? "bg-red-500" : "bg-primary")}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <TransactionForm
         isOpen={isFormOpen}
         onClose={() => { setIsFormOpen(false); setEditingTransaction(null); }}
         onSubmit={handleAddTransaction}
         initialData={editingTransaction}
+        categories={categories}
       />
     </Layout>
   );

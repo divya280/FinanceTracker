@@ -24,10 +24,13 @@ exports.getAllTransactions = async (req, res) => {
     }
 };
 
-// Get by userId
+// Get by userId, optionally filtered by startDate/endDate/type/category
 exports.getTransactionsByUser = async (req, res) => {
     try {
-        const transactions = await transactionService.getTransactionsByUser(req.params.userId);
+        const { startDate, endDate, type, category } = req.query;
+        const transactions = await transactionService.getTransactionsByUser(req.params.userId, {
+            startDate, endDate, type, category,
+        });
         res.status(200).json(transactions);
     } catch (err) {
         res.status(500).json({ error: err.message });

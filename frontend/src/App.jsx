@@ -5,6 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import UserSelect from './pages/UserSelect';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
+import Categories from './pages/Categories';
+import Budgets from './pages/Budgets';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
@@ -24,6 +26,16 @@ function App() {
           <Route path="/transactions" element={
             <ProtectedRoute>
               <Transactions />
+            </ProtectedRoute>
+          } />
+          <Route path="/categories" element={
+            <ProtectedRoute>
+              <Categories />
+            </ProtectedRoute>
+          } />
+          <Route path="/budgets" element={
+            <ProtectedRoute>
+              <Budgets />
             </ProtectedRoute>
           } />
         </Routes>
