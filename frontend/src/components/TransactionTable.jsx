@@ -2,7 +2,7 @@ import React from 'react';
 import { Edit2, Trash2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const TransactionTable = ({ transactions, onEdit, onDelete }) => {
+const TransactionTable = ({ transactions, onEdit, onDelete, readOnly = false }) => {
   if (!transactions.length) {
     return (
       <div className="text-center p-8 border border-dashed border-border rounded-lg">
@@ -20,7 +20,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
             <th className="px-6 py-3">Category</th>
             <th className="px-6 py-3">Description</th>
             <th className="px-6 py-3 text-right">Amount</th>
-            <th className="px-6 py-3 text-right">Actions</th>
+            {!readOnly && <th className="px-6 py-3 text-right">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -47,24 +47,26 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
               )}>
                 {t.type === 'income' ? '+' : '-'}₹{Math.abs(t.amount).toFixed(2)}
               </td>
-              <td className="px-6 py-4 text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => onEdit(t)}
-                    className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
-                    title="Edit"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(t._id)}
-                    className="p-2 rounded-md hover:bg-red-100 text-muted-foreground hover:text-red-600"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
+              {!readOnly && (
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => onEdit(t)}
+                      className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(t._id)}
+                      className="p-2 rounded-md hover:bg-red-100 text-muted-foreground hover:text-red-600"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

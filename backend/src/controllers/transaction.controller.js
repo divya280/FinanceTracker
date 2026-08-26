@@ -24,12 +24,12 @@ exports.getAllTransactions = async (req, res) => {
     }
 };
 
-// Get by userId, optionally filtered by startDate/endDate/type/category
+// Get by userId, optionally filtered by startDate/endDate/type/category/search, optionally paginated via page/limit
 exports.getTransactionsByUser = async (req, res) => {
     try {
-        const { startDate, endDate, type, category } = req.query;
+        const { startDate, endDate, type, category, search, page, limit } = req.query;
         const transactions = await transactionService.getTransactionsByUser(req.params.userId, {
-            startDate, endDate, type, category,
+            startDate, endDate, type, category, search, page, limit,
         });
         res.status(200).json(transactions);
     } catch (err) {
@@ -57,6 +57,16 @@ exports.deleteTransaction = async (req, res) => {
 exports.getUserSummary = async (req, res) => {
     try {
         const summary = await transactionService.getUserSummary(req.params.userId);
+        res.status(200).json(summary);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getMonthlySummary = async (req, res) => {
+    try {
+        const months = req.query.months ? Number(req.query.months) : 6;
+        const summary = await transactionService.getMonthlySummary(req.params.userId, months);
         res.status(200).json(summary);
     } catch (err) {
         res.status(500).json({ error: err.message });

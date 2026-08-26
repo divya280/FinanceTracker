@@ -38,6 +38,7 @@ export const transactionApi = {
   create: (data) => api.post("/transactions", data),
   getAll: () => api.get("/transactions"),
   getByUser: (userId, filters = {}) => api.get(`/transactions/user/${userId}`, { params: filters }),
+  getMonthlySummary: (userId, months = 6) => api.get(`/transactions/user/${userId}/monthly-summary`, { params: { months } }),
   update: (id, data) => api.put(`/transactions/${id}`, data),
   delete: (id) => api.delete(`/transactions/${id}`),
 };

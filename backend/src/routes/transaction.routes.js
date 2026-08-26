@@ -9,6 +9,7 @@ router.post('/', transactionController.createTransaction);
 router.get('/', transactionController.getAllTransactions);
 router.get('/user/:userId', transactionController.getTransactionsByUser);
 router.get('/user/:userId/summary', transactionController.getUserSummary);
+router.get('/user/:userId/monthly-summary', transactionController.getMonthlySummary);
 router.put('/:id', transactionController.updateTransaction);
 router.delete('/:id', transactionController.deleteTransaction);
 module.exports = router;    

@@ -4,10 +4,12 @@ import MetricCard from '../components/MetricCard';
 import TransactionTable from '../components/TransactionTable';
 import TransactionForm from '../components/TransactionForm';
 import { transactionApi, categoryApi, budgetApi } from '../services/api';
-import { Plus, LogOut } from 'lucide-react';
+import { Plus, LogOut, X } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { cn } from '../lib/utils';
+
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 import { useAuth } from '../context/AuthContext';
 
@@ -20,6 +22,8 @@ const Dashboard = () => {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [period, setPeriod] = useState('thisMonth');
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
+  const [monthlySummary, setMonthlySummary] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const userId = user?.uid;
@@ -54,6 +58,11 @@ const Dashboard = () => {
     budgetApi.getByUser(userId).then(res => setBudgets(res.data)).catch(err => console.error("Failed to fetch budgets", err));
   }, [userId, period, customRange.start, customRange.end]);
 
+  useEffect(() => {
+    if (!userId) return;
+    transactionApi.getMonthlySummary(userId, 6).then(res => setMonthlySummary(res.data)).catch(err => console.error("Failed to fetch monthly summary", err));
+  }, [userId]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -70,6 +79,10 @@ const Dashboard = () => {
     budgetApi.getByUser(userId).then(res => setBudgets(res.data)).catch(err => console.error("Failed to fetch budgets", err));
   };
 
+  const refreshMonthlySummary = () => {
+    transactionApi.getMonthlySummary(userId, 6).then(res => setMonthlySummary(res.data)).catch(err => console.error("Failed to fetch monthly summary", err));
+  };
+
   const handleAddTransaction = async (data) => {
     try {
       if (editingTransaction) {
@@ -81,6 +94,7 @@ const Dashboard = () => {
       setEditingTransaction(null);
       fetchData();
       refreshBudgets();
+      refreshMonthlySummary();
     } catch (err) {
       console.error("Failed to save transaction", err);
       alert(err.response?.data?.error || "Failed to save transaction");
@@ -98,6 +112,7 @@ const Dashboard = () => {
         await transactionApi.delete(id);
         fetchData();
         refreshBudgets();
+        refreshMonthlySummary();
       } catch (err) {
         console.error("Failed to delete", err);
       }
@@ -129,6 +144,29 @@ const Dashboard = () => {
     { name: 'Expense', value: totalExpense },
   ];
   const COLORS = ['#22c55e', '#ef4444'];
+
+  // Spending trends (last 6 months)
+  const trendsData = monthlySummary.map((m) => ({
+    label: `${MONTH_SHORT[m.month - 1]} ${m.year}`,
+    income: m.income,
+    expense: m.expense,
+  }));
+
+  // Expense by category (current period)
+  const expenseByCategory = Object.values(
+    transactions
+      .filter((t) => t.type === 'expense')
+      .reduce((acc, t) => {
+        if (!acc[t.category]) acc[t.category] = { name: t.category, value: 0 };
+        acc[t.category].value += t.amount;
+        return acc;
+      }, {})
+  );
+  const categoryColor = (name) => categories.find((c) => c.name === name)?.color || '#94a3b8';
+
+  const drillDownTransactions = selectedCategory
+    ? transactions.filter((t) => t.type === 'expense' && t.category === selectedCategory)
+    : [];
 
   return (
     <Layout>
@@ -243,6 +281,51 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        {/* Spending Trends */}
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6 h-[350px]">
+          <h2 className="text-xl font-semibold mb-4">Spending Trends (Last 6 Months)</h2>
+          <ResponsiveContainer width="100%" height="90%">
+            <BarChart data={trendsData}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey="label" fontSize={12} />
+              <YAxis fontSize={12} />
+              <Tooltip formatter={(value) => `₹${Number(value).toFixed(2)}`} />
+              <Legend />
+              <Bar dataKey="income" fill="#22c55e" name="Income" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Expense by Category */}
+        <div className="bg-card border border-border rounded-xl p-6 h-[350px]">
+          <h2 className="text-xl font-semibold mb-4">Expense by Category</h2>
+          {expenseByCategory.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center mt-8">No expenses in this period.</p>
+          ) : (
+            <ResponsiveContainer width="100%" height="90%">
+              <PieChart>
+                <Pie
+                  data={expenseByCategory}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  dataKey="value"
+                  onClick={(entry) => setSelectedCategory(entry.name)}
+                  cursor="pointer"
+                >
+                  {expenseByCategory.map((entry, index) => (
+                    <Cell key={`cat-cell-${index}`} fill={categoryColor(entry.name)} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `₹${Number(value).toFixed(2)}`} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
       {budgets.length > 0 && (
         <div className="mt-8 bg-card border border-border rounded-xl p-6">
           <div className="flex justify-between items-center mb-4">
@@ -281,6 +364,22 @@ const Dashboard = () => {
         initialData={editingTransaction}
         categories={categories}
       />
+
+      {selectedCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedCategory(null)}>
+          <div className="bg-card w-full max-w-2xl rounded-lg shadow-lg border border-border max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-lg font-semibold">{selectedCategory} transactions</h2>
+              <button onClick={() => setSelectedCategory(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <TransactionTable transactions={drillDownTransactions} readOnly />
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
