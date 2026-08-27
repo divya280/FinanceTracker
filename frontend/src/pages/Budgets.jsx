@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { budgetApi, categoryApi } from '../services/api';
-import { Trash2, Check, X as XIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash, Check, X as XIcon, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 
@@ -93,13 +93,13 @@ const Budgets = () => {
         </div>
         <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-2 py-1">
           <button onClick={() => changeMonth(-1)} className="p-2 rounded-md hover:bg-muted">
-            <ChevronLeft className="w-4 h-4" />
+            <CaretLeft className="w-4 h-4" weight="bold" />
           </button>
           <span className="font-medium min-w-[140px] text-center">
             {MONTH_NAMES[period.month - 1]} {period.year}
           </span>
           <button onClick={() => changeMonth(1)} className="p-2 rounded-md hover:bg-muted">
-            <ChevronRight className="w-4 h-4" />
+            <CaretRight className="w-4 h-4" weight="bold" />
           </button>
         </div>
       </div>
@@ -107,7 +107,7 @@ const Budgets = () => {
       {loading ? (
         <div className="p-8 text-center">Loading budgets...</div>
       ) : categories.length === 0 ? (
-        <div className="text-center p-8 border border-dashed border-border rounded-lg">
+        <div className="text-center p-8 border border-dashed border-border rounded-2xl">
           <p className="text-muted-foreground">No expense categories yet. Add some from the Categories page first.</p>
         </div>
       ) : (
@@ -121,15 +121,21 @@ const Budgets = () => {
             const isEditing = editingCategory === c.name;
 
             return (
-              <div key={c._id} className="bg-card border border-border rounded-xl p-5 space-y-3">
+              <div
+                key={c._id}
+                className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-sm border-l-4"
+                style={{ borderLeftColor: c.color }}
+              >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
-                    <span className="font-semibold">{c.name}</span>
-                  </div>
+                  <span
+                    className="px-3 py-1 rounded-full text-sm font-semibold"
+                    style={{ color: c.color, backgroundColor: `${c.color}1a` }}
+                  >
+                    {c.name}
+                  </span>
                   {budget && !isEditing && (
                     <button onClick={() => handleDelete(budget._id)} className="p-1.5 rounded-md hover:bg-red-100 text-muted-foreground hover:text-red-600" title="Remove budget">
-                      <Trash2 className="w-4 h-4" />
+                      <Trash className="w-4 h-4" weight="duotone" />
                     </button>
                   )}
                 </div>
@@ -148,10 +154,10 @@ const Budgets = () => {
                       placeholder="Monthly limit"
                     />
                     <button onClick={saveEdit} className="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90">
-                      <Check className="w-4 h-4" />
+                      <Check className="w-4 h-4" weight="bold" />
                     </button>
                     <button onClick={() => setEditingCategory(null)} className="p-2 rounded-md border border-input hover:bg-muted">
-                      <XIcon className="w-4 h-4" />
+                      <XIcon className="w-4 h-4" weight="bold" />
                     </button>
                   </div>
                 ) : budget ? (

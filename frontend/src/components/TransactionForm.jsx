@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { X } from 'lucide-react';
+import { X } from '@phosphor-icons/react';
 
 const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, categories = [] }) => {
   const [formData, setFormData] = useState({
@@ -40,13 +40,13 @@ const TransactionForm = ({ isOpen, onClose, onSubmit, initialData, categories = 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-card w-full max-w-md rounded-lg shadow-lg border border-border">
+      <div className="bg-card w-full max-w-md rounded-2xl shadow-lg border border-border">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-lg font-semibold">
             {initialData ? 'Edit Transaction' : 'Add Transaction'}
           </h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" weight="bold" />
           </button>
         </div>
         

@@ -4,10 +4,11 @@ import MetricCard from '../components/MetricCard';
 import TransactionTable from '../components/TransactionTable';
 import TransactionForm from '../components/TransactionForm';
 import { transactionApi, categoryApi, budgetApi } from '../services/api';
-import { Plus, LogOut, X } from 'lucide-react';
+import { Plus, SignOut, X } from '@phosphor-icons/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { cn } from '../lib/utils';
+import paymentIllustration from '../assets/payment-illustration.svg';
 
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -180,14 +181,14 @@ const Dashboard = () => {
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
-            <LogOut className="w-5 h-5" />
+            <SignOut className="w-5 h-5" weight="bold" />
             Logout
           </button>
           <button
             onClick={() => { setEditingTransaction(null); setIsFormOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5" weight="bold" />
             Add Transaction
           </button>
         </div>
@@ -237,17 +238,24 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold">Recent Transactions</h2>
           {loading ? (
              <div className="text-center p-4">Loading...</div>
+          ) : transactions.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-6 px-4 border border-dashed border-border rounded-2xl">
+              <img src={paymentIllustration} alt="" className="w-56 max-w-full mb-4" />
+              <p className="font-medium">No transactions yet</p>
+              <p className="text-sm text-muted-foreground">Add your first transaction to see it here.</p>
+            </div>
           ) : (
             <TransactionTable
               transactions={transactions.slice(0, 5)}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              categories={categories}
             />
           )}
         </div>
 
         {/* Chart */}
-        <div className="bg-card border border-border rounded-xl p-6 h-[400px]">
+        <div className="bg-card border border-border rounded-2xl p-6 h-[400px] shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Financial Overview</h2>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -283,7 +291,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         {/* Spending Trends */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6 h-[350px]">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 h-[350px] shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Spending Trends (Last 6 Months)</h2>
           <ResponsiveContainer width="100%" height="90%">
             <BarChart data={trendsData}>
@@ -299,7 +307,7 @@ const Dashboard = () => {
         </div>
 
         {/* Expense by Category */}
-        <div className="bg-card border border-border rounded-xl p-6 h-[350px]">
+        <div className="bg-card border border-border rounded-2xl p-6 h-[350px] shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Expense by Category</h2>
           {expenseByCategory.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">No expenses in this period.</p>
@@ -327,7 +335,7 @@ const Dashboard = () => {
       </div>
 
       {budgets.length > 0 && (
-        <div className="mt-8 bg-card border border-border rounded-xl p-6">
+        <div className="mt-8 bg-card border border-border rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Budget Overview</h2>
             <Link to="/budgets" className="text-sm text-primary hover:underline">Manage budgets</Link>
@@ -367,15 +375,15 @@ const Dashboard = () => {
 
       {selectedCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedCategory(null)}>
-          <div className="bg-card w-full max-w-2xl rounded-lg shadow-lg border border-border max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card w-full max-w-2xl rounded-2xl shadow-lg border border-border max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-semibold">{selectedCategory} transactions</h2>
               <button onClick={() => setSelectedCategory(null)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" weight="bold" />
               </button>
             </div>
             <div className="p-6">
-              <TransactionTable transactions={drillDownTransactions} readOnly />
+              <TransactionTable transactions={drillDownTransactions} readOnly categories={categories} />
             </div>
           </div>
         </div>

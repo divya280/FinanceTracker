@@ -1,101 +1,81 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Menu, X, Wallet, Tags, PiggyBank } from 'lucide-react';
+import { SquaresFour, Receipt, List, X, Wallet, Tag, PiggyBank } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 import NotificationBell from './NotificationBell';
 
-const SidebarItem = ({ icon: Icon, label, to, active }) => (
+const NAV_ITEMS = [
+  { icon: SquaresFour, label: 'Dashboard', to: '/' },
+  { icon: Receipt, label: 'Transactions', to: '/transactions' },
+  { icon: Tag, label: 'Categories', to: '/categories' },
+  { icon: PiggyBank, label: 'Budgets', to: '/budgets' },
+];
+
+const NavPill = ({ icon: Icon, label, to, active, onClick }) => (
   <Link
     to={to}
+    onClick={onClick}
     className={cn(
-      "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-      active 
-        ? "bg-primary text-primary-foreground" 
-        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+      active
+        ? "bg-white/25 text-white shadow-sm"
+        : "text-white/80 hover:bg-white/15 hover:text-white"
     )}
   >
-    <Icon className="w-5 h-5" />
-    <span className="font-medium">{label}</span>
+    <Icon className="w-4 h-4" weight="duotone" />
+    <span>{label}</span>
   </Link>
 );
 
 const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const isActive = (to) => (to === '/' ? location.pathname === '/' : location.pathname === to);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="gradient-primary sticky top-0 z-40 shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+          <div className="h-16 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-6 h-6 text-white" weight="duotone" />
+              <h1 className="text-xl font-bold text-white">FinanceTracker</h1>
+            </div>
 
-      {/* Sidebar */}
-      <aside 
-        className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:transform-none",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <div className="h-16 flex items-center px-6 border-b border-border">
-          <Wallet className="w-6 h-6 text-primary mr-2" />
-          <h1 className="text-xl font-bold">FinanceTracker</h1>
+            {/* Desktop nav */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {NAV_ITEMS.map((item) => (
+                <NavPill key={item.to} {...item} active={isActive(item.to)} />
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-2">
+              <NotificationBell variant="dark" />
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="lg:hidden p-2 rounded-md text-white hover:bg-white/15"
+              >
+                {menuOpen ? <X className="w-6 h-6" weight="bold" /> : <List className="w-6 h-6" weight="bold" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile nav */}
+          {menuOpen && (
+            <nav className="lg:hidden pb-4 flex flex-col gap-1">
+              {NAV_ITEMS.map((item) => (
+                <NavPill key={item.to} {...item} active={isActive(item.to)} onClick={() => setMenuOpen(false)} />
+              ))}
+            </nav>
+          )}
         </div>
+      </header>
 
-        <nav className="p-4 space-y-2">
-          <SidebarItem 
-            icon={LayoutDashboard} 
-            label="Dashboard" 
-            to="/" 
-            active={location.pathname === '/'} 
-          />
-          <SidebarItem
-            icon={Receipt}
-            label="Transactions"
-            to="/transactions"
-            active={location.pathname === '/transactions'}
-          />
-          <SidebarItem
-            icon={Tags}
-            label="Categories"
-            to="/categories"
-            active={location.pathname === '/categories'}
-          />
-          <SidebarItem
-            icon={PiggyBank}
-            label="Budgets"
-            to="/budgets"
-            active={location.pathname === '/budgets'}
-          />
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-border bg-card">
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 -ml-2 rounded-md hover:bg-muted"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <span className="ml-3 font-semibold">FinanceTracker</span>
-          </div>
-          <div className="hidden lg:block" />
-          <NotificationBell />
-        </header>
-
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
-          <div className="max-w-6xl mx-auto">
-            {children}
-          </div>
-        </main>
-      </div>
+      <main className="p-4 lg:p-8">
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };

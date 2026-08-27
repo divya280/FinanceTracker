@@ -3,7 +3,7 @@ import Layout from '../components/Layout';
 import TransactionTable from '../components/TransactionTable';
 import TransactionForm from '../components/TransactionForm';
 import { transactionApi, categoryApi } from '../services/api';
-import { Plus, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { Plus, CaretLeft, CaretRight, Download } from '@phosphor-icons/react';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -147,14 +147,14 @@ const Transactions = () => {
             disabled={exporting}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-input hover:bg-muted transition-colors disabled:opacity-50"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4" weight="duotone" />
             {exporting ? 'Exporting...' : 'Export CSV'}
           </button>
           <button
             onClick={handleAdd}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5" weight="bold" />
             Add Transaction
           </button>
         </div>
@@ -220,6 +220,7 @@ const Transactions = () => {
             transactions={transactions}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            categories={categories}
           />
         )}
       </div>
@@ -235,7 +236,7 @@ const Transactions = () => {
               disabled={page <= 1}
               className="p-2 rounded-md border border-input hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <CaretLeft className="w-4 h-4" weight="bold" />
             </button>
             <span>Page {page} of {pagination.totalPages}</span>
             <button
@@ -243,7 +244,7 @@ const Transactions = () => {
               disabled={page >= pagination.totalPages}
               className="p-2 rounded-md border border-input hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <ChevronRight className="w-4 h-4" />
+              <CaretRight className="w-4 h-4" weight="bold" />
             </button>
           </div>
         </div>

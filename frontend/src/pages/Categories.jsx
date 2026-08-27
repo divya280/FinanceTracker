@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import CategoryForm from '../components/CategoryForm';
 import { categoryApi } from '../services/api';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, PencilSimple, Trash } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
 
 const Categories = () => {
@@ -69,24 +69,30 @@ const Categories = () => {
   const renderGroup = (type, label) => {
     const items = categories.filter((c) => c.type === type);
     return (
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold mb-4">{label}</h2>
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">No {type} categories yet.</p>
         ) : (
           <div className="space-y-2">
             {items.map((c) => (
-              <div key={c._id} className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
-                  <span className="font-medium">{c.name}</span>
-                </div>
+              <div
+                key={c._id}
+                className="flex items-center justify-between p-3 rounded-xl border-l-4 bg-muted/30 hover:bg-muted/60 transition-colors"
+                style={{ borderLeftColor: c.color }}
+              >
+                <span
+                  className="px-3 py-1 rounded-full text-sm font-semibold"
+                  style={{ color: c.color, backgroundColor: `${c.color}1a` }}
+                >
+                  {c.name}
+                </span>
                 <div className="flex items-center gap-2">
                   <button onClick={() => handleEdit(c)} className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground" title="Edit">
-                    <Edit2 className="w-4 h-4" />
+                    <PencilSimple className="w-4 h-4" weight="duotone" />
                   </button>
                   <button onClick={() => handleDelete(c._id)} className="p-2 rounded-md hover:bg-red-100 text-muted-foreground hover:text-red-600" title="Delete">
-                    <Trash2 className="w-4 h-4" />
+                    <Trash className="w-4 h-4" weight="duotone" />
                   </button>
                 </div>
               </div>
@@ -106,9 +112,9 @@ const Categories = () => {
         </div>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" weight="bold" />
           Add Category
         </button>
       </div>

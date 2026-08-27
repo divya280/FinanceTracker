@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Bell, Warning, WarningCircle } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 import { budgetApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const NotificationBell = () => {
+const NotificationBell = ({ variant = 'light' }) => {
   const [budgets, setBudgets] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
@@ -30,12 +30,17 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="relative p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+        className={cn(
+          "relative p-2 rounded-md",
+          variant === 'dark'
+            ? "text-white/85 hover:text-white hover:bg-white/15"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+        )}
         title="Budget alerts"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-5 h-5" weight="duotone" />
         {alerts.length > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-400 text-amber-950 text-[10px] font-bold flex items-center justify-center">
             {alerts.length}
           </span>
         )}
@@ -55,9 +60,9 @@ const NotificationBell = () => {
                   return (
                     <div key={b._id} className="p-3 flex items-start gap-2">
                       {isOver ? (
-                        <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                        <WarningCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" weight="duotone" />
                       ) : (
-                        <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                        <Warning className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" weight="duotone" />
                       )}
                       <div className="text-sm">
                         <p className={cn("font-medium", isOver ? "text-red-600" : "text-amber-600")}>

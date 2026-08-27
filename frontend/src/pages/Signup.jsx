@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Wallet, Eye, EyeSlash } from '@phosphor-icons/react';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
     try {
       await signup(email, password, name);
       navigate('/dashboard');
@@ -22,18 +29,24 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white-50 dark:bg-white-900 p-4">
-      <div className="bg-white dark:bg-white-800 p-8 rounded-lg shadow-md max-w-md w-full border border-white-200 dark:border-white-700">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
+    <div className="min-h-screen flex items-center justify-center gradient-primary p-4">
+      <div className="bg-card p-8 rounded-2xl shadow-2xl max-w-md w-full border border-border">
+        <div className="flex flex-col items-center mb-6">
+          <div className="p-3 rounded-full gradient-primary mb-3 shadow-lg shadow-primary/30">
+            <Wallet className="w-6 h-6 text-white" weight="duotone" />
+          </div>
+          <h2 className="text-2xl font-bold">Create your account</h2>
+          <p className="text-muted-foreground text-sm">Start tracking your finances</p>
+        </div>
+        {error && <div className="bg-red-100 text-red-700 p-3 mb-4 rounded-xl text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
-           <div>
+          <div>
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded-md dark:bg-white-700 dark:border-white-600"
+              className="w-full p-2 rounded-md border border-input bg-background"
               required
             />
           </div>
@@ -43,26 +56,59 @@ const Signup = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded-md dark:bg-white-700 dark:border-white-600"
+              className="w-full p-2 rounded-md border border-input bg-background"
               required
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded-md dark:bg-white-700 dark:border-white-600"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 pr-10 rounded-md border border-input bg-background"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeSlash className="w-4 h-4" weight="bold" /> : <Eye className="w-4 h-4" weight="bold" />}
+              </button>
+            </div>
           </div>
-          <button type="submit" className="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700">
-            Sign Up <UserPlus className="inline w-4 h-4 ml-2" />
+          <div>
+            <label className="block text-sm font-medium mb-1">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-2 pr-10 rounded-md border border-input bg-background"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeSlash className="w-4 h-4" weight="bold" /> : <Eye className="w-4 h-4" weight="bold" />}
+              </button>
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="w-full py-2.5 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30 font-medium flex items-center justify-center gap-2"
+          >
+            Sign Up <UserPlus className="w-4 h-4" weight="bold" />
           </button>
         </form>
-         <div className="mt-4 text-center">
-          <Link to="/login" className="text-blue-600 hover:underline">Already have an account? Log In</Link>
+        <div className="mt-4 text-center">
+          <Link to="/login" className="text-primary hover:underline text-sm">Already have an account? Log In</Link>
         </div>
       </div>
     </div>

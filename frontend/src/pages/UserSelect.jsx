@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User } from '@phosphor-icons/react';
 
 const UserSelect = () => {
   const [userId, setUserId] = useState('');
@@ -19,7 +19,7 @@ const UserSelect = () => {
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md max-w-md w-full border border-gray-200 dark:border-gray-700">
         <div className="flex justify-center mb-6">
           <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full text-blue-600">
-            <User className="w-8 h-8" />
+            <User className="w-8 h-8" weight="duotone" />
           </div>
         </div>
         <h1 className="text-2xl font-bold text-center mb-2">Welcome Back</h1>

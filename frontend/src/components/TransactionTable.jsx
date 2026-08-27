@@ -1,11 +1,12 @@
 import React from 'react';
-import { Edit2, Trash2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 
-const TransactionTable = ({ transactions, onEdit, onDelete, readOnly = false }) => {
+const TransactionTable = ({ transactions, onEdit, onDelete, readOnly = false, categories = [] }) => {
+  const categoryColor = (t) => categories.find((c) => c.name === t.category)?.color || (t.type === 'income' ? '#22c55e' : '#ef4444');
   if (!transactions.length) {
     return (
-      <div className="text-center p-8 border border-dashed border-border rounded-lg">
+      <div className="text-center p-8 border border-dashed border-border rounded-2xl">
         <p className="text-muted-foreground">No transactions found.</p>
       </div>
     );
@@ -30,11 +31,14 @@ const TransactionTable = ({ transactions, onEdit, onDelete, readOnly = false }) 
                 {new Date(t.createdAt).toLocaleDateString()}
               </td>
               <td className="px-6 py-4">
-                <span className="flex items-center gap-2">
-                  <span className={cn(
-                    "w-2 h-2 rounded-full",
-                    t.type === 'income' ? "bg-green-500" : "bg-red-500"
-                  )} />
+                <span
+                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border"
+                  style={{
+                    color: categoryColor(t),
+                    backgroundColor: `${categoryColor(t)}1a`,
+                    borderColor: `${categoryColor(t)}40`,
+                  }}
+                >
                   {t.category}
                 </span>
               </td>
@@ -55,14 +59,14 @@ const TransactionTable = ({ transactions, onEdit, onDelete, readOnly = false }) 
                       className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
                       title="Edit"
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <PencilSimple className="w-4 h-4" weight="duotone" />
                     </button>
                     <button
                       onClick={() => onDelete(t._id)}
                       className="p-2 rounded-md hover:bg-red-100 text-muted-foreground hover:text-red-600"
                       title="Delete"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash className="w-4 h-4" weight="duotone" />
                     </button>
                   </div>
                 </td>
