@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Menu, X, Wallet, Tags, PiggyBank } from 'lucide-react';
 import { cn } from '../lib/utils';
+import NotificationBell from './NotificationBell';
 
 const SidebarItem = ({ icon: Icon, label, to, active }) => (
   <Link
@@ -74,15 +75,19 @@ const Layout = ({ children }) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header */}
-        <header className="h-16 lg:hidden flex items-center px-4 border-b border-border bg-card">
-          <button 
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-2 rounded-md hover:bg-muted"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <span className="ml-3 font-semibold">FinanceTracker</span>
+        {/* Header */}
+        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-border bg-card">
+          <div className="flex items-center lg:hidden">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 -ml-2 rounded-md hover:bg-muted"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <span className="ml-3 font-semibold">FinanceTracker</span>
+          </div>
+          <div className="hidden lg:block" />
+          <NotificationBell />
         </header>
 
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
